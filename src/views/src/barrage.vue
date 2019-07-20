@@ -76,12 +76,12 @@
              * @param color
              */
             pushMessage (content, color) {
-                let y = this.getY() // 确定跑道
+                let position = this.getPosition() // 确定跑道
                 let x = this.barrageWidth // 初始位置
                 let offsetWidth = 0
                 for (let i = 0, len = this.barrageArray.length; i < len; i++) {
                     let item = this.barrageArray[i]
-                    if (y === item.y) { // 如果是同跑道,则往后排
+                    if (position === item.position) { // 如果是同跑道,则往后排
                         offsetWidth += Math.floor(this.ctx.measureText(item.content).width * 3 + 60)
                     }
                 }
@@ -89,7 +89,7 @@
                     content: content,
                     x: x + offsetWidth,
                     originX: x + offsetWidth,
-                    y: y,
+                    position: position,
                     width: this.ctx.measureText(content).width * 3,
                     color: color || this.getColor()
                 })
@@ -128,9 +128,9 @@
                         }
                         if (barrage.x <= 2 * document.body.clientWidth + barrage.width) {
                             // 绘制背景
-                            this.drawRoundRect(this.ctx, barrage.x - 15, barrage.y - 30, barrage.width + 30, 40, 20, `rgba(0,0,0,0.75)`)
+                            this.drawRoundRect(this.ctx, barrage.x - 15, barrage.position - 30, barrage.width + 30, 40, 20, `rgba(0,0,0,0.75)`)
                             this.ctx.fillStyle = `${barrage.color}`
-                            this.ctx.fillText(barrage.content, barrage.x, barrage.y)
+                            this.ctx.fillText(barrage.content, barrage.x, barrage.position)
                         }
                     } catch (e) {
                         console.log(e)
@@ -142,12 +142,12 @@
              * @param obj
              */
             add (obj) {
-                let y = this.getY() // 确定跑道高度
+                let position = this.getPosition() // 确定跑道高度
                 let x = this.barrageWidth // 初始位置
                 let offsetWidth = 0
                 for (let i = 0, len = this.barrageArray.length; i < len; i++) {
                     let dm = this.barrageArray[i]
-                    if (y === dm.y) { // 如果是同跑道,则往后排
+                    if (position === dm.position) { // 如果是同跑道,则往后排
                         offsetWidth += Math.floor(this.ctx.measureText(dm.content).width + 60)
                     }
                 }
@@ -155,7 +155,7 @@
                     content: obj.content,
                     x: x + offsetWidth,
                     originX: x + offsetWidth,
-                    y: y,
+                    position: position,
                     width: this.ctx.measureText(obj.content).width,
                     color: obj.color || this.getColor()
                 })
@@ -165,7 +165,7 @@
              * 使用pathWayIndex来确认每一条弹幕所在的轨道
              * 返回距离顶部的距离
              */
-            getY () {
+            getPosition () {
                 let range = this.channels
                 let top = (this.pathWayIndex % range) * 50 + 40
                 this.pathWayIndex++

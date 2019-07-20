@@ -95,9 +95,9 @@
         position: fixed;
         top: 0;
         width: 100%;
-        height: auto;
+        height: 250px;
         z-index: 1;
-        background: linear-gradient(45deg, #5ac381, #20568b);
+        background: rgba(70, 126, 120);
     }
 
     body {
