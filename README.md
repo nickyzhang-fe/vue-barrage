@@ -57,5 +57,6 @@ this.$refs.barrage.add({
 })
 ```
 
+[文章分析](https://juejin.im/post/5d32ef685188251b4b32b348)
 
 
