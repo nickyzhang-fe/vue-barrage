@@ -12,8 +12,8 @@
 </template>
 
 <script>
-//    import Barrage from './views/src/index'
-    import Barrage from 'vue-barrage'
+    import Barrage from './views/src1/index'
+//    import Barrage from 'vue-barrage'
     export default {
         name: 'app',
         components: {
@@ -27,31 +27,31 @@
                 barrageList: [],
                 speed: 5,
                 loop: true,
-                channels: 4
+                channels: 3
             }
         },
         mounted () {
             setTimeout(() => {
                 this.barrageList = [{
-                    content: '试数据测试数测试数据数测试数据',
+                    content: '1试数据测试数测试数据数测试数据',
                     color: 'white'
                 }, {
-                    content: '数据测试数据测试数据测试数据测试数据测试数据',
+                    content: '2数据测试数据测试数据测试数据测试数据测试数据',
                     color: 'orange'
                 }, {
-                    content: '测试数据测试数据测试数据测试数据测试数据数据测试数据',
+                    content: '3测试数据测试数据测试数据测试数据测试数据数据测试数据',
                     color: 'red'
                 }, {
-                    content: '试数据测测试数据测试数据测试数据测试数据测试数据试据',
+                    content: '4试数据测测试数据测试数据测试数据测试数据测试数据试据',
                     color: 'blue'
                 }, {
-                    content: '测试数据测试数据测试数据测试数据测试数据',
+                    content: '5测试数据测试数据测试数据测试数据测试数据',
                     color: 'green'
                 }, {
-                    content: '测试数据测试数据数据测试数据',
+                    content: '6测试数据测试数据数据测试数据',
                     color: 'white'
                 }, {
-                    content: '测试数据测试数数据测试数据测试数据测试数据测试数据',
+                    content: '7测试数据测试数数据测试数据测试数据测试数据测试数据',
                 }, {
                     content: '测试据测试据测试据测试据测试据测试据',
                     color: 'white'
