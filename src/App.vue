@@ -12,7 +12,7 @@
 </template>
 
 <script>
-    import Barrage from './views/src1/index'
+    import Barrage from './views/src/index'
 //    import Barrage from 'vue-barrage'
     export default {
         name: 'app',

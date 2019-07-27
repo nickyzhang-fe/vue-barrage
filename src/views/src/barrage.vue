@@ -1,5 +1,10 @@
 <template>
     <div class="barrage-container">
+        <canvas
+                ref="canvasContainer"
+                :width="barrageWidth"
+                :height="barrageHeight"
+                style="display: none;"></canvas>
         <div
                 class="container"
                 :style="{height: barrageHeight/2+'px'}"
@@ -18,7 +23,7 @@
 
 <script>
     export default {
-        name: 'barrage',
+        name: 'Main',
         props: {
             barrageList: {
                 type: Array,
@@ -39,19 +44,20 @@
         },
         data () {
             return {
-                barrageArray: [], // 缓存弹幕数据的数组
+                barrageArray: [],
+                barrageQueue: [],
                 barrageWidth: 0,
                 barrageHeight: 0,
-                timer: null,
-                pathWayIndex: 0, // 弹幕轨道值 递增
-                addArray: [] // 新增弹幕
+                channelsArray: [],
+                waitArray: []
             }
         },
         watch: {
             barrageList (val) {
                 if (val.length !== 0) {
+                    this.barrageQueue = val
                     this.initData()
-                    this.render()
+                    window.requestAnimationFrame(this.render)
                 }
             }
         },
@@ -59,40 +65,37 @@
             this.barrageWidth = document.body.clientWidth * 2
             this.barrageHeight = this.channels * 50
             this.ctx = this.$refs.canvas.getContext('2d')
+            this.ctx1 = this.$refs.canvasContainer.getContext('2d')
         },
         methods: {
             /**
              * 数据初始化
              */
             initData () {
-                for (let i = 0; i < this.barrageList.length; i++) { // 此处处理只显示55个字符
-                    let content = this.barrageList[i].content.length > 40 ? `${this.barrageList[i].content.substring(0, 40)}...` : this.barrageList[i].content
-                    this.pushMessage(content, this.barrageList[i].color)
+                for (let i = 0; i < this.barrageQueue.length; i++) { // 此处处理只显示55个字符
+                    let content = this.barrageQueue[i].content.length > 50 ? `${this.barrageQueue[i].content.substring(0, 50)}...` : this.barrageQueue[i].content
+                    this.barrageArray.push({
+                        content: content,
+                        x: this.barrageWidth,
+                        width: this.ctx1.measureText(content).width * 3,
+                        color: this.barrageQueue[i].color || this.getColor()
+                    })
                 }
+                this.initChannel()
             },
             /**
-             * 增加数据
-             * @param content
-             * @param color
+             * 初始化轨道数据
              */
-            pushMessage (content, color) {
-                let position = this.getPosition() // 确定跑道
-                let x = this.barrageWidth // 初始位置
-                let offsetWidth = 0
-                for (let i = 0, len = this.barrageArray.length; i < len; i++) {
-                    let item = this.barrageArray[i]
-                    if (position === item.position) { // 如果是同跑道,则往后排
-                        offsetWidth += Math.floor(this.ctx.measureText(item.content).width * 3 + 60)
+            initChannel () {
+                for (let i = 0; i < this.channels; i++) {
+                    let item = this.barrageArray.shift()
+                    this.waitArray.push(item)
+                    if (item) {
+                        this.channelsArray[i] = [item]
+                    } else {
+                        this.channelsArray[i] = []
                     }
                 }
-                this.barrageArray.push({
-                    content: content,
-                    x: x + offsetWidth,
-                    originX: x + offsetWidth,
-                    position: position,
-                    width: this.ctx.measureText(content).width * 3,
-                    color: color || this.getColor()
-                })
             },
             /**
              * 渲染
@@ -103,79 +106,59 @@
                 this.draw()
                 window.requestAnimationFrame(this.render)
             },
-            /**
-             * 开始绘制 文字和背景
-             */
             draw () {
-                for (let i = 0, len = this.barrageArray.length; i < len; i++) {
-                    let barrage = this.barrageArray[i]
-                    try {
-                        barrage.x -= this.speed
-                        if (barrage.x < -barrage.width - 100) {
-                            if (i === this.barrageArray.length - 1) { // 最后一条执行完后重新赋值位置
-                                if (!this.loop) { // 判断是否循环，不循环执行cancelAnimationFrame
-                                    cancelAnimationFrame(this.render)
-                                    return
-                                }
-                                if (this.addArray.length !== 0) {
-                                    this.barrageArray = this.barrageArray.concat(this.addArray)
-                                    this.addArray = []
-                                }
-                                for (let j = 0; j < this.barrageArray.length; j++) {
-                                    this.barrageArray[j].x = this.barrageArray[j].originX
+                for (let i = 0; i < this.channelsArray.length; i++) {
+                    for (let j = 0; j < this.channelsArray[i].length; j++) {
+                        try {
+                            let barrage = this.channelsArray[i][j]
+                            barrage.x -= this.speed
+                            if (barrage.x <= this.barrageWidth) {
+                                this.drawRoundRect(this.ctx, barrage.x - 15, i * 46 + 8, barrage.width + 30, 40, 20, `rgba(0,0,0,0.75)`)
+                                this.ctx.fillStyle = `${barrage.color}`
+                                this.ctx.fillText(barrage.content, barrage.x, i * 46 + 39)
+                            }
+
+                            if (barrage.x < -(barrage.width + this.barrageWidth)) {
+                                let item = this.channelsArray[i].shift()
+                                item.x = this.barrageWidth
+                                if (this.loop) {
+                                    let arr = this.channelsArray.reduce((a, b) => a.concat(b))
+                                    if (arr.length === 0) {
+                                        this.barrageQueue = []
+                                        this.barrageQueue = this.waitArray
+                                        this.waitArray = []
+                                        this.initData()
+                                    }
                                 }
                             }
+                            if (barrage.x <= (this.barrageWidth - barrage.width - 50) && barrage.x >= (this.barrageWidth - barrage.width - 50 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
+                                let item = this.barrageArray.shift()
+                                this.channelsArray[i].push(item)
+                                this.waitArray.push(item)
+                            }
+                        } catch (e) {
+                            console.log(e)
                         }
-                        if (barrage.x <= 2 * document.body.clientWidth + barrage.width) {
-                            // 绘制背景
-                            this.drawRoundRect(this.ctx, barrage.x - 15, barrage.position - 30, barrage.width + 30, 40, 20, `rgba(0,0,0,0.75)`)
-                            this.ctx.fillStyle = `${barrage.color}`
-                            this.ctx.fillText(barrage.content, barrage.x, barrage.position)
-                        }
-                    } catch (e) {
-                        console.log(e)
                     }
                 }
             },
             /**
-             * 弹幕增加
-             * @param obj
+             * 重置数据
              */
             add (obj) {
-                let position = this.getPosition() // 确定跑道高度
-                let x = this.barrageWidth // 初始位置
-                let offsetWidth = 0
-                for (let i = 0, len = this.barrageArray.length; i < len; i++) {
-                    let dm = this.barrageArray[i]
-                    if (position === dm.position) { // 如果是同跑道,则往后排
-                        offsetWidth += Math.floor(this.ctx.measureText(dm.content).width + 60)
-                    }
-                }
-                this.addArray.push({
+                let item = {
                     content: obj.content,
-                    x: x + offsetWidth,
-                    originX: x + offsetWidth,
-                    position: position,
-                    width: this.ctx.measureText(obj.content).width,
+                    x: this.barrageWidth,
+                    width: this.ctx1.measureText(obj.content).width * 3,
                     color: obj.color || this.getColor()
-                })
-            },
-            /**
-             * 获取文字位置
-             * 使用pathWayIndex来确认每一条弹幕所在的轨道
-             * 返回距离顶部的距离
-             */
-            getPosition () {
-                let range = this.channels
-                let top = (this.pathWayIndex % range) * 50 + 40
-                this.pathWayIndex++
-                return top
+                }
+                this.barrageArray.unshift(item)
             },
             /**
              * 获取随机颜色
              */
             getColor () {
-                return '#' + ('00000' + (Math.random() * 0x1000000 << 0).toString(16)).slice(-6);
+                return `#${Math.floor(Math.random() * 16777215).toString(16)}`
             },
             /**
              * 绘画圆角矩形
@@ -207,10 +190,10 @@
 <style lang="scss" scoped>
     .barrage-container {
         pointer-events: none;
-        overflow: hidden;
     }
 
     .container {
         width: 100%;
+        overflow: hidden;
     }
 </style>
