@@ -23,7 +23,7 @@
 
 <script>
     export default {
-        name: 'Barrage',
+        name: 'Main',
         props: {
             barrageList: {
                 type: Array,
@@ -44,15 +44,18 @@
         },
         data () {
             return {
-                barrageArray: [], // 缓存弹幕数据的数组
+                barrageArray: [],
+                barrageQueue: [],
                 barrageWidth: 0,
                 barrageHeight: 0,
-                channelsArray: []
+                channelsArray: [],
+                waitArray: []
             }
         },
         watch: {
             barrageList (val) {
                 if (val.length !== 0) {
+                    this.barrageQueue = val
                     this.initData()
                     window.requestAnimationFrame(this.render)
                 }
@@ -69,13 +72,14 @@
              * 数据初始化
              */
             initData () {
-                for (let i = 0; i < this.barrageList.length; i++) { // 此处处理只显示55个字符
-                    let content = this.barrageList[i].content.length > 55 ? `${this.barrageList[i].content.substring(0, 55)}...` : this.barrageList[i].content
+                for (let i = 0; i < this.barrageQueue.length; i++) { // 此处处理只显示55个字符
+                    let content = this.barrageQueue[i].content.length > 55 ? `${this.barrageQueue[i].content.substring(0, 55)}...` : this.barrageQueue[i].content
                     this.barrageArray.push({
-                        text: content,
+                        content: content,
                         x: this.barrageWidth,
+                        originX: this.barrageWidth,
                         width: this.ctx1.measureText(content).width * 3,
-                        color: this.barrageList[i].color || this.getColor()
+                        color: this.barrageQueue[i].color || this.getColor()
                     })
                 }
                 this.initChannel()
@@ -86,6 +90,7 @@
             initChannel () {
                 for (let i = 0; i < this.channels; i++) {
                     let item = this.barrageArray.shift()
+                    this.waitArray.push(item)
                     if (item) {
                         this.channelsArray[i] = [item]
                     } else {
@@ -111,15 +116,18 @@
                             if (barrage.x <= this.barrageWidth) {
                                 this.drawRoundRect(this.ctx, barrage.x - 15, i * 46 + 8, barrage.width + 30, 40, 20, `rgba(0,0,0,0.75)`)
                                 this.ctx.fillStyle = `${barrage.color}`
-                                this.ctx.fillText(barrage.text, barrage.x, i * 46 + 39)
+                                this.ctx.fillText(barrage.content, barrage.x, i * 46 + 39)
                             }
 
                             if (barrage.x < -(barrage.width + this.barrageWidth)) {
                                 let item = this.channelsArray[i].shift()
                                 item.x = this.barrageWidth
-                                if (this.loop){
+                                if (this.loop) {
                                     let arr = this.channelsArray.reduce((a, b) => a.concat(b))
-                                    if (arr.length === 0){
+                                    if (arr.length === 0) {
+                                        this.barrageQueue = []
+                                        this.barrageQueue = this.waitArray
+                                        this.waitArray = []
                                         this.initData()
                                     }
                                 }
@@ -127,6 +135,7 @@
                             if (barrage.x <= (this.barrageWidth - barrage.width - 50) && barrage.x >= (this.barrageWidth - barrage.width - 50 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
                                 let item = this.barrageArray.shift()
                                 this.channelsArray[i].push(item)
+                                this.waitArray.push(item)
                             }
                         } catch (e) {
                             console.log(e)
@@ -139,8 +148,9 @@
              */
             add (obj) {
                 let item = {
-                    text: obj.content,
+                    content: obj.content,
                     x: this.barrageWidth,
+                    originX: this.barrageWidth,
                     width: this.ctx1.measureText(obj.content).width * 3,
                     color: obj.color || this.getColor()
                 }
