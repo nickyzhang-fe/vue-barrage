@@ -4,7 +4,8 @@
                 ref="canvasContainer"
                 :width="barrageWidth"
                 :height="barrageHeight"
-                style="display: none;"></canvas>
+                style="display: none;"
+        />
         <div
                 class="container"
                 :style="{height: barrageHeight/2+'px'}"
@@ -23,7 +24,7 @@
 
 <script>
     export default {
-        name: 'Main',
+        name: 'Barrage',
         props: {
             barrageList: {
                 type: Array,
@@ -72,12 +73,13 @@
              * 数据初始化
              */
             initData () {
-                for (let i = 0; i < this.barrageQueue.length; i++) { // 此处处理只显示55个字符
-                    let content = this.barrageQueue[i].content.length > 50 ? `${this.barrageQueue[i].content.substring(0, 50)}...` : this.barrageQueue[i].content
+                for (let i = 0; i < this.barrageQueue.length; i++) { // 此处处理只显示50个字符
+                    let content = this.dealStr(this.barrageQueue[i].content)
                     this.barrageArray.push({
                         content: content,
-                        x: this.barrageWidth,
-                        width: this.ctx1.measureText(content).width * 3,
+                        x: 1.5 * this.barrageWidth,
+                        icon: this.barrageQueue[i].icon,
+                        width: this.ctx1.measureText(content).width * 3 + (this.barrageQueue[i].icon ? 40 : 0),
                         color: this.barrageQueue[i].color || this.getColor()
                     })
                 }
@@ -112,13 +114,17 @@
                         try {
                             let barrage = this.channelsArray[i][j]
                             barrage.x -= this.speed
-                            if (barrage.x <= this.barrageWidth) {
+                            if (barrage.x <= 1.5 * this.barrageWidth) {
                                 this.drawRoundRect(this.ctx, barrage.x - 15, i * 46 + 8, barrage.width + 30, 40, 20, `rgba(0,0,0,0.75)`)
                                 this.ctx.fillStyle = `${barrage.color}`
-                                this.ctx.fillText(barrage.content, barrage.x, i * 46 + 39)
+                                this.ctx.fillText(barrage.content, barrage.x + (barrage.icon ? 40 : 0), i * 46 + 39)
+                                if (barrage.icon) {
+                                    var img = new Image()
+                                    img.src = barrage.icon
+                                    this.circleImg(this.ctx, img, barrage.x, i * 46 + 14, 15)
+                                }
                             }
-
-                            if (barrage.x < -(barrage.width + this.barrageWidth)) {
+                            if (barrage.x < -(barrage.width + 1.5 * this.barrageWidth)) {
                                 let item = this.channelsArray[i].shift()
                                 item.x = this.barrageWidth
                                 if (this.loop) {
@@ -131,7 +137,7 @@
                                     }
                                 }
                             }
-                            if (barrage.x <= (this.barrageWidth - barrage.width - 50) && barrage.x >= (this.barrageWidth - barrage.width - 50 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
+                            if (barrage.x <= (1.5 * this.barrageWidth - barrage.width - 50) && barrage.x >= (1.5 * this.barrageWidth - barrage.width - 50 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
                                 let item = this.barrageArray.shift()
                                 this.channelsArray[i].push(item)
                                 this.waitArray.push(item)
@@ -146,19 +152,46 @@
              * 重置数据
              */
             add (obj) {
+                let content = this.dealStr(obj.content)
                 let item = {
-                    content: obj.content,
-                    x: this.barrageWidth,
-                    width: this.ctx1.measureText(obj.content).width * 3,
+                    content: content,
+                    x: 1.5 * this.barrageWidth,
+                    icon: obj.icon,
+                    width: this.ctx1.measureText(content).width * 3 + (obj.icon ? 40 : 0),
                     color: obj.color || this.getColor()
                 }
                 this.barrageArray.unshift(item)
+            },
+            /**
+             * 处理字符
+             */
+            dealStr (str) {
+                return str.length > 50 ? `${str.substring(0, 50)}...` : str
             },
             /**
              * 获取随机颜色
              */
             getColor () {
                 return `#${Math.floor(Math.random() * 16777215).toString(16)}`
+            },
+            /**
+             * 裁剪图片
+             * @param ctx
+             * @param img
+             * @param x
+             * @param y
+             * @param r
+             */
+            circleImg(ctx, img, x, y, r) {
+                ctx.save();
+                var d = 2 * r;
+                var cx = x + r;
+                var cy = y + r;
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+                ctx.clip();
+                ctx.drawImage(img, x, y, d, d);
+                ctx.restore();
             },
             /**
              * 绘画圆角矩形
