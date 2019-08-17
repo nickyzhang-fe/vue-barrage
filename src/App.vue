@@ -6,7 +6,9 @@
                 :barrage-list="barrageList"
                 :speed="speed"
                 :loop="loop"
-                :channels="channels"/>
+                :channels="channels"
+                :background="background"
+                :border-color="borderColor"/>
         <div @click="add" style="margin-top: 300px;">增加</div>
         <canvas ref="canvas"></canvas>
     </div>
@@ -28,7 +30,9 @@
                 barrageList: [],
                 speed: 5,
                 loop: true,
-                channels: 3
+                channels: 3,
+                background: '#FFFFFF',
+                borderColor: 'rgb(233,195,237)'
             }
         },
         mounted () {
