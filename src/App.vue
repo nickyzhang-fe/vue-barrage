@@ -40,7 +40,7 @@
                 this.barrageList = [{
                     icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
                     content: '1试数据测试数测试数据数测试数据',
-                    color: 'white'
+                    color: 'orange'
                 }, {
                     icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
                     content: '2数据测试数据测试数据测试数据测试数据测试数据',
@@ -58,36 +58,7 @@
                     color: 'green'
                 }, {
                     content: '6测试数据测试数据数据测试数据',
-                    color: 'white'
-                }, {
-                    content: '7测试数据测试数数据测试数据测试数据测试数据测试数据',
-                }, {
-                    content: '测试据测试据测试据测试据测试据测试据',
-                    color: 'white'
-                }, {
-                    content: '测试数据测试数据测试数据测试数'
-                }, {
-                    content: '测试数据测试数据测试数数据测试数据',
-                    color: 'white'
-                }, {
-                    content: '测试数据测据测试数据测试数据'
-                }, {
-                    content: '测试数据测试数据测试数据测试数据测试数据',
-                    color: 'white'
-                }, {
-                    content: '测试数据测试测试数据测试数据测试数据',
-                }, {
-                    content: '测试数据测试数据测试数据测试数据测试数据'
-                }, {
-                    content: '测试数据测试测试数据测试试测试数据测试',
-                    color: 'white'
-                }, {
-                    content: '测试数据测试数据测试数数据测试数据',
-                }, {
-                    content: '测试数据测据测试数据测试数据'
-                }, {
-                    content: '测试数据测数据测试数据',
-                    color: 'white'
+                    color: 'orange'
                 }]
             }, 500)
         },

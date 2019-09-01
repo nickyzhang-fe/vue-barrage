@@ -41,6 +41,23 @@
             channels: {
                 type: Number,
                 default: 2
+            },
+            borderColor: {
+                type: String,
+                default: ''
+            },
+            background: {
+                type: String,
+                default: '#FFFFFF'
+            },
+            linearGradient: {
+                type: Object,
+                default: () => {
+                    return {
+                        startColor: '',
+                        endColor: ''
+                    }
+                }
             }
         },
         data () {
@@ -64,7 +81,7 @@
         },
         mounted () {
             this.barrageWidth = document.body.clientWidth * 2
-            this.barrageHeight = this.channels * 50
+            this.barrageHeight = this.channels * 80
             this.ctx = this.$refs.canvas.getContext('2d')
             this.ctx1 = this.$refs.canvasContainer.getContext('2d')
         },
@@ -75,10 +92,20 @@
             initData () {
                 for (let i = 0; i < this.barrageQueue.length; i++) { // 此处处理只显示50个字符
                     let content = this.dealStr(this.barrageQueue[i].content)
+                    let tempIcon = this.barrageQueue[i].icon
+                    let icon = null
+                    if (typeof tempIcon === 'object' && tempIcon instanceof Image) {
+                        icon = tempIcon
+                    }
+                    if (typeof tempIcon === 'string') {
+                        let img = new Image()
+                        img.src = tempIcon
+                        icon = img
+                    }
                     this.barrageArray.push({
                         content: content,
                         x: 1.5 * this.barrageWidth,
-                        icon: this.barrageQueue[i].icon,
+                        icon: icon,
                         width: this.ctx1.measureText(content).width * 3 + (this.barrageQueue[i].icon ? 40 : 0),
                         color: this.barrageQueue[i].color || this.getColor()
                     })
@@ -115,13 +142,12 @@
                             let barrage = this.channelsArray[i][j]
                             barrage.x -= this.speed
                             if (barrage.x <= 1.5 * this.barrageWidth) {
-                                this.drawRoundRect(this.ctx, barrage.x - 15, i * 46 + 8, barrage.width + 30, 40, 20, `rgba(0,0,0,0.75)`)
+                                this.borderColor && this.drawRoundRectBorder(this.ctx, barrage.x - 17, i * 60 + 9, barrage.width + 37, 43, 22)
+                                this.drawRoundRect(this.ctx, barrage.x - 15, i * 60 + 10, barrage.width + 33, 41, 20)
                                 this.ctx.fillStyle = `${barrage.color}`
-                                this.ctx.fillText(barrage.content, barrage.x + (barrage.icon ? 40 : 0), i * 46 + 39)
+                                this.ctx.fillText(barrage.content, barrage.x + (barrage.icon ? 40 : 0), i * 60 + 41)
                                 if (barrage.icon) {
-                                    var img = new Image()
-                                    img.src = barrage.icon
-                                    this.circleImg(this.ctx, img, barrage.x, i * 46 + 14, 15)
+                                    this.circleImg(this.ctx, barrage.icon, barrage.x - 6, i * 60 + 12, 18)
                                 }
                             }
                             if (barrage.x < -(barrage.width + 1.5 * this.barrageWidth)) {
@@ -137,7 +163,7 @@
                                     }
                                 }
                             }
-                            if (barrage.x <= (1.5 * this.barrageWidth - barrage.width - 50) && barrage.x >= (1.5 * this.barrageWidth - barrage.width - 50 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
+                            if (barrage.x <= (1.5 * this.barrageWidth - barrage.width - 60) && barrage.x >= (1.5 * this.barrageWidth - barrage.width - 60 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
                                 let item = this.barrageArray.shift()
                                 this.channelsArray[i].push(item)
                                 this.waitArray.push(item)
@@ -153,10 +179,12 @@
              */
             add (obj) {
                 let content = this.dealStr(obj.content)
+                let img = new Image()
+                img.src = obj.icon || ''
                 let item = {
                     content: content,
                     x: 1.5 * this.barrageWidth,
-                    icon: obj.icon,
+                    icon: obj.icon ? img : '',
                     width: this.ctx1.measureText(content).width * 3 + (obj.icon ? 40 : 0),
                     color: obj.color || this.getColor()
                 }
@@ -182,16 +210,21 @@
              * @param y
              * @param r
              */
-            circleImg(ctx, img, x, y, r) {
-                ctx.save();
-                var d = 2 * r;
-                var cx = x + r;
-                var cy = y + r;
-                ctx.beginPath();
-                ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-                ctx.clip();
-                ctx.drawImage(img, x, y, d, d);
-                ctx.restore();
+            circleImg (ctx, img, x, y, r) {
+                try {
+                    ctx.save()
+                    let d = 2 * r
+                    let cx = x + r
+                    let cy = y + r
+                    ctx.beginPath()
+                    ctx.arc(cx, cy, r, 0, 2 * Math.PI)
+                    ctx.clip()
+                    ctx.drawImage(img, x, y, d, d)
+                    ctx.restore()
+                    ctx.closePath()
+                } catch (e) {
+                    console.log(e)
+                }
             },
             /**
              * 绘画圆角矩形
@@ -201,11 +234,17 @@
              * @param width
              * @param height
              * @param radius
-             * @param color
              */
-            drawRoundRect (context, x, y, width, height, radius, color) {
+            drawRoundRect (context, x, y, width, height, radius) {
+                if (this.linearGradient.startColor && this.linearGradient.endColor) {
+                    let linearGrad = context.createLinearGradient(x, y, x, y + height)
+                    linearGrad.addColorStop(0, this.linearGradient.startColor)
+                    linearGrad.addColorStop(1, this.linearGradient.endColor)
+                    context.fillStyle = linearGrad
+                } else {
+                    context.fillStyle = this.background
+                }
                 context.beginPath()
-                context.fillStyle = color
                 context.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 3 / 2)
                 context.lineTo(width - radius + x, y)
                 context.arc(width - radius + x, radius + y, radius, Math.PI * 3 / 2, Math.PI * 2)
@@ -215,12 +254,35 @@
                 context.arc(radius + x, height - radius + y, radius, Math.PI / 2, Math.PI)
                 context.fill()
                 context.closePath()
+            },
+            /**
+             * 绘画圆角矩形
+             * @param context
+             * @param x
+             * @param y
+             * @param width
+             * @param height
+             * @param radius 半径
+             */
+            drawRoundRectBorder (context, x, y, width, height, radius) {
+                context.beginPath()
+                context.lineWidth = 2
+                context.strokeStyle = this.borderColor
+                context.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 3 / 2)
+                context.lineTo(width - radius + x, y)
+                context.arc(width - radius + x, radius + y, radius, Math.PI * 3 / 2, Math.PI * 2)
+                context.lineTo(width + x, height + y - radius)
+                context.arc(width - radius + x, height - radius + y, radius, 0, Math.PI / 2)
+                context.lineTo(radius + x, height + y)
+                context.arc(radius + x, height - radius + y, radius, Math.PI / 2, Math.PI)
+                context.stroke()
+                context.closePath()
             }
         }
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
     .barrage-container {
         pointer-events: none;
     }
