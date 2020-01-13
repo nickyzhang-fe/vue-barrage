@@ -104,7 +104,7 @@
                     }
                     this.barrageArray.push({
                         content: content,
-                        x: 1.5 * this.barrageWidth,
+                        x: this.barrageWidth,
                         icon: icon,
                         width: this.ctx1.measureText(content).width * 3 + (this.barrageQueue[i].icon ? 40 : 0),
                         color: this.barrageQueue[i].color || this.getColor()
@@ -134,6 +134,7 @@
                 this.ctx.font = '30px Microsoft YaHei'
                 this.draw()
                 window.requestAnimationFrame(this.render)
+
             },
             draw () {
                 for (let i = 0; i < this.channelsArray.length; i++) {
@@ -141,7 +142,8 @@
                         try {
                             let barrage = this.channelsArray[i][j]
                             barrage.x -= this.speed
-                            if (barrage.x <= 1.5 * this.barrageWidth) {
+                            // 判断出现时机
+                            if (barrage.x <= this.barrageWidth) {
                                 this.borderColor && this.drawRoundRectBorder(this.ctx, barrage.x - 17, i * 60 + 9, barrage.width + 37, 43, 22)
                                 this.drawRoundRect(this.ctx, barrage.x - 15, i * 60 + 10, barrage.width + 33, 41, 20)
                                 this.ctx.fillStyle = `${barrage.color}`
@@ -150,7 +152,8 @@
                                     this.circleImg(this.ctx, barrage.icon, barrage.x - 6, i * 60 + 12, 18)
                                 }
                             }
-                            if (barrage.x < -(barrage.width + 1.5 * this.barrageWidth)) {
+                            // 删除时机
+                            if (barrage.x < -(this.barrageWidth + barrage.width)) {
                                 let item = this.channelsArray[i].shift()
                                 item.x = this.barrageWidth
                                 if (this.loop) {
@@ -163,7 +166,8 @@
                                     }
                                 }
                             }
-                            if (barrage.x <= (1.5 * this.barrageWidth - barrage.width - 60) && barrage.x >= (1.5 * this.barrageWidth - barrage.width - 60 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
+                            // 插入时机
+                            if (barrage.x <= (this.barrageWidth - barrage.width - 60) && barrage.x >= (this.barrageWidth - barrage.width - 60 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
                                 let item = this.barrageArray.shift()
                                 this.channelsArray[i].push(item)
                                 this.waitArray.push(item)
@@ -183,7 +187,7 @@
                 img.src = obj.icon || ''
                 let item = {
                     content: content,
-                    x: 1.5 * this.barrageWidth,
+                    x: this.barrageWidth,
                     icon: obj.icon ? img : '',
                     width: this.ctx1.measureText(content).width * 3 + (obj.icon ? 40 : 0),
                     color: obj.color || this.getColor()
