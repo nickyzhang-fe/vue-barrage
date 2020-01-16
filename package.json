@@ -12,6 +12,7 @@
     "core-js": "^2.6.5",
     "node-sass": "^4.12.0",
     "sass-loader": "^7.1.0",
+    "vconsole": "^3.3.4",
     "vue": "^2.6.10",
     "vue-barrage": "0.0.4",
     "vue-router": "^3.0.3",

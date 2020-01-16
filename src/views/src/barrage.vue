@@ -184,15 +184,18 @@
             add (obj) {
                 let content = this.dealStr(obj.content)
                 let img = new Image()
-                img.src = obj.icon || ''
-                let item = {
-                    content: content,
-                    x: this.barrageWidth,
-                    icon: obj.icon ? img : '',
-                    width: this.ctx1.measureText(content).width * 3 + (obj.icon ? 40 : 0),
-                    color: obj.color || this.getColor()
+//                img.addEventListener('load', this.addObj(obj, img), false);
+                img.load = () => {
+                    let item = {
+                        content: content,
+                        x: this.barrageWidth,
+                        icon: obj.icon ? img : '',
+                        width: this.ctx1.measureText(content).width * 3 + (obj.icon ? 40 : 0),
+                        color: obj.color || this.getColor()
+                    }
+                    this.barrageArray.unshift(item)
                 }
-                this.barrageArray.unshift(item)
+                img.src = obj.icon || ''
             },
             /**
              * 处理字符

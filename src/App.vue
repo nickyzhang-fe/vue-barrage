@@ -38,19 +38,19 @@
         mounted () {
             setTimeout(() => {
                 this.barrageList = [{
-                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
+//                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
                     content: '1试数据测试数测试数据数测试数据',
                     color: 'orange'
                 }, {
-                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
+//                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
                     content: '2数据测试数据测试数据测试数据测试数据测试数据',
                     color: 'orange'
                 }, {
-                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
+//                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
                     content: '3测试数据测试数据测试数据测试数据测试数据数据测试数据',
                     color: 'red'
                 }, {
-                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
+//                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
                     content: '4试数据测测试数据测试数据测试数据测试数据测试数据试据',
                     color: 'blue'
                 }, {
@@ -64,9 +64,13 @@
         },
         methods: {
             add(){
-                this.$refs.barrage.add({
-                    content: '增加一条新的弹幕增加一条新的弹幕', color: 'white'
-                })
+                for (let i = 0; i < 1; i++) {
+                    this.$refs.barrage.add({
+                        icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
+                        content: `增加一条新的弹幕增加一条新的弹幕${i}`,
+                        color: 'red'
+                    })
+                }
             }
         }
     }
