@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-01-16 23:36:57
+ * @LastEditTime: 2020-03-19 15:16:19
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /vue-barrage/src/App.vue
+ -->
 <template>
     <div id="app">
         <barrage
@@ -7,8 +15,8 @@
                 :speed="speed"
                 :loop="loop"
                 :channels="channels"
-                :background="background"
-                :border-color="borderColor"/>
+                :screen-percent="0.3"
+                v-on:doLike="DoLike"/>
         <div @click="add" style="margin-top: 300px;">增加</div>
         <canvas ref="canvas"></canvas>
     </div>
@@ -32,45 +40,60 @@
                 loop: true,
                 channels: 3,
                 background: '#FFFFFF',
-                borderColor: 'rgb(233,195,237)'
+                borderColor: 'red'
             }
         },
         mounted () {
             setTimeout(() => {
                 this.barrageList = [{
-//                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
-                    content: '1试数据测试数测试数据数测试数据',
-                    color: 'orange'
+                    id: 1,
+                    tagImage: 'https://imgservices-1252317822.image.myqcloud.com/image/20200317/fx4jitwuvb.png',
+                    icon: 'https://imgservices-1252317822.image.myqcloud.com/image/20200317/fx4jitwuvb.png',
+                    content: '1试数据测试数测试试数据',
+                    color: 'orange',
+                    bgColor: 'black'
                 }, {
+                    id: 2,
+                    tagImage: 'https://imgservices-1252317822.image.myqcloud.com/image/20200317/fx4jitwuvb.png',
+                    icon: 'https://imgservices-1252317822.image.myqcloud.com/image/20200317/fx4jitwuvb.png',
+                    content: '2数据测试数据测数据测试数据测试数据',
+                    color: 'orange',
+                    bgColor: 'white'
+                }
+                , {
+                    id: 3,
 //                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
-                    content: '2数据测试数据测试数据测试数据测试数据测试数据',
-                    color: 'orange'
-                }, {
-//                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
-                    content: '3测试数据测试数据测试数据测试数据测试数据数据测试数据',
+                    content: '3测试数据测试数据数据测试数据',
                     color: 'red'
                 }, {
+                    id: 4,
 //                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
-                    content: '4试数据测测试数据测试数据测试数据测试数据测试数据试据',
+                    content: '4试数据测测试数据测试数据测测试数据试据',
                     color: 'blue'
                 }, {
-                    content: '5测试数据测试数据测试数据测试数据测试数据',
+                    id: 5,
+                    content: '5测数据测试数据测试数据',
                     color: 'green'
                 }, {
+                    id: 6,
                     content: '6测试数据测试数据数据测试数据',
                     color: 'orange'
-                }]
+                }
+                ]
             }, 500)
         },
         methods: {
             add(){
-                for (let i = 0; i < 1; i++) {
-                    this.$refs.barrage.add({
-                        icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
-                        content: `增加一条新的弹幕增加一条新的弹幕${i}`,
-                        color: 'red'
-                    })
-                }
+                this.$refs.barrage.add({
+                    id: 100,
+                    icon: 'https://imgservices-1252317822.image.myqcloud.com/image/20200317/fx4jitwuvb.png',
+                    content: `增加一条新的弹幕增加一条新的弹幕`,
+                    color: 'red',
+                    bgColor: 'black'
+                })
+            },
+            DoLike (val) {
+                console.log(87, val)
             }
         }
     }

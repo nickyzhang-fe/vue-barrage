@@ -38,17 +38,21 @@
                 type: Boolean,
                 default: true
             },
+            itemHeight: {
+                type: Number,
+                default: 60
+            },
             channels: {
                 type: Number,
                 default: 2
             },
             borderColor: {
                 type: String,
-                default: ''
+                default: 'red'
             },
             background: {
                 type: String,
-                default: '#FFFFFF'
+                default: '#000'
             },
             linearGradient: {
                 type: Object,
@@ -64,6 +68,7 @@
             return {
                 barrageArray: [],
                 barrageQueue: [],
+                newBarrageArray: [],
                 barrageWidth: 0,
                 barrageHeight: 0,
                 channelsArray: [],
@@ -73,7 +78,8 @@
         watch: {
             barrageList (val) {
                 if (val.length !== 0) {
-                    this.barrageQueue = val
+                    this.barrageQueue = JSON.parse(JSON.stringify(val))
+                    this.newBarrageArray = JSON.parse(JSON.stringify(val))
                     this.initData()
                     window.requestAnimationFrame(this.render)
                 }
@@ -81,11 +87,33 @@
         },
         mounted () {
             this.barrageWidth = document.body.clientWidth * 2
-            this.barrageHeight = this.channels * 80
+            this.barrageHeight = this.channels * 100
             this.ctx = this.$refs.canvas.getContext('2d')
             this.ctx1 = this.$refs.canvasContainer.getContext('2d')
+            // document.getElementById('canvas').addEventListener('click', (e) => {
+            //     const p = this.getEventPosition(e);
+            //     let channelIndex = Math.ceil(p.y / 70)
+            //     const tempArray = JSON.parse(JSON.stringify(this.channelsArray[channelIndex]))
+            //     for (let i = 0; i < tempArray.length; i++) {
+            //         let channelItemArray = tempArray[i]
+            //         // if (2*p.x > channelItemArray.x && 2*p.x < (channelItemArray.x + channelItemArray.width)) {
+            //         //     console.log(channelItemArray)
+            //         // }
+            //     }
+            // }, false);
         },
         methods: {
+            getEventPosition(ev){
+                var x, y;
+                if (ev.layerX || ev.layerX == 0) {
+                    x = ev.layerX;
+                    y = ev.layerY;
+                } else if (ev.offsetX || ev.offsetX == 0) {
+                    x = ev.offsetX;
+                    y = ev.offsetY;
+                }
+                return {x: x, y: y};
+            },
             /**
              * 数据初始化
              */
@@ -93,7 +121,9 @@
                 for (let i = 0; i < this.barrageQueue.length; i++) { // 此处处理只显示50个字符
                     let content = this.dealStr(this.barrageQueue[i].content)
                     let tempIcon = this.barrageQueue[i].icon
+                    let tempTagImage = this.barrageQueue[i].tagImage
                     let icon = null
+                    let tagImage = null
                     if (typeof tempIcon === 'object' && tempIcon instanceof Image) {
                         icon = tempIcon
                     }
@@ -102,10 +132,19 @@
                         img.src = tempIcon
                         icon = img
                     }
+                    if (typeof tempTagImage === 'object' && tempTagImage instanceof Image) {
+                        tagImage = tempTagImage
+                    }
+                    if (typeof tempTagImage === 'string') {
+                        let img = new Image()
+                        img.src = tempTagImage
+                        tagImage = img
+                    }
                     this.barrageArray.push({
                         content: content,
                         x: this.barrageWidth,
                         icon: icon,
+                        tagImage: tagImage,
                         width: this.ctx1.measureText(content).width * 3 + (this.barrageQueue[i].icon ? 40 : 0),
                         color: this.barrageQueue[i].color || this.getColor()
                     })
@@ -116,13 +155,16 @@
              * 初始化轨道数据
              */
             initChannel () {
+                let tempArray = []
                 for (let i = 0; i < this.channels; i++) {
                     let item = this.barrageArray.shift()
-                    this.waitArray.push(item)
+                    // this.waitArray.push(item)
                     if (item) {
                         this.channelsArray[i] = [item]
+                        tempArray[i] = [item]
                     } else {
                         this.channelsArray[i] = []
+                        tempArray[i] = []
                     }
                 }
             },
@@ -144,33 +186,53 @@
                             barrage.x -= this.speed
                             // 判断出现时机
                             if (barrage.x <= this.barrageWidth) {
-                                this.borderColor && this.drawRoundRectBorder(this.ctx, barrage.x - 17, i * 60 + 9, barrage.width + 37, 43, 22)
-                                this.drawRoundRect(this.ctx, barrage.x - 15, i * 60 + 10, barrage.width + 33, 41, 20)
+                                this.borderColor && this.drawRoundRectBorder(this.ctx, barrage.x - this.itemHeight / 2, i * (this.itemHeight + 20) + 20, barrage.width + this.itemHeight, this.itemHeight, this.itemHeight / 2)
+                                this.drawRoundRect(this.ctx, barrage.x - this.itemHeight / 2, i * (this.itemHeight + 20) + 21, barrage.width + this.itemHeight, this.itemHeight - 2, this.itemHeight / 2)
                                 this.ctx.fillStyle = `${barrage.color}`
-                                this.ctx.fillText(barrage.content, barrage.x + (barrage.icon ? 40 : 0), i * 60 + 41)
+                                this.ctx.fillText(barrage.content, barrage.x + (barrage.icon ? this.itemHeight / 2 + 12 : 0), i * (this.itemHeight + 20) + this.itemHeight)
                                 if (barrage.icon) {
-                                    this.circleImg(this.ctx, barrage.icon, barrage.x - 6, i * 60 + 12, 18)
+                                    this.circleImg(this.ctx, barrage.icon, barrage.x - this.itemHeight / 4, i * (this.itemHeight + 20) + 26, 24)
+                                }
+                                if (barrage.tagImage) {
+                                    this.originImg(this.ctx, barrage.tagImage, barrage.x - this.itemHeight - 20, i * (this.itemHeight + 20) + 20, this.itemHeight, this.itemHeight)
                                 }
                             }
-                            // 删除时机
-                            if (barrage.x < -(this.barrageWidth + barrage.width)) {
-                                let item = this.channelsArray[i].shift()
-                                item.x = this.barrageWidth
+                            if (barrage.x < -(barrage.width + 30)) { // 删除时机
+                                this.channelsArray[i].shift()
+                                // let item = this.channelsArray[i].shift()
+                                // item.x = this.barrageWidth
                                 if (this.loop) {
                                     let arr = this.channelsArray.reduce((a, b) => a.concat(b))
-                                    if (arr.length === 0) {
+                                    if (this.checkBarrageStatus(arr)) {
                                         this.barrageQueue = []
-                                        this.barrageQueue = this.waitArray
-                                        this.waitArray = []
+                                        // this.barrageQueue = JSON.parse(JSON.stringify(this.waitArray))
+                                        this.barrageQueue = JSON.parse(JSON.stringify(this.newBarrageArray))
+                                        // this.waitArray = []
                                         this.initData()
                                     }
+                                    // if (arr.length === 0) {
+                                    //     this.barrageQueue = []
+                                    //     this.barrageQueue = this.waitArray
+                                    //     this.waitArray = []
+                                    //     this.initData()
+                                    // }
                                 }
                             }
                             // 插入时机
-                            if (barrage.x <= (this.barrageWidth - barrage.width - 60) && barrage.x >= (this.barrageWidth - barrage.width - 60 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
+                            if (barrage.x <= Math.floor(this.barrageWidth - barrage.width - this.itemHeight - 40) && barrage.x >= Math.floor(this.barrageWidth - barrage.width - this.itemHeight - 40 - this.speed) && (j === this.channelsArray[i].length - 1) && this.barrageArray.length !== 0) {
                                 let item = this.barrageArray.shift()
                                 this.channelsArray[i].push(item)
-                                this.waitArray.push(item)
+                                // this.waitArray.push(item)
+                                // console.log(this.waitArray)
+                                // console.log(this.channelsArray)
+                                // setTimeout(() => {
+                                //     if (this.loop) {
+                                //         this.barrageQueue = []
+                                //         this.barrageQueue = this.waitArray
+                                //         this.waitArray = []
+                                //         this.initData()
+                                //     }
+                                // }, 828 / 4 * 17)
                             }
                         } catch (e) {
                             console.log(e)
@@ -196,6 +258,16 @@
                     this.barrageArray.unshift(item)
                 }
                 img.src = obj.icon || ''
+            },
+            /**
+             * 判断所有的弹幕是否滚动完成
+             * @params arr
+             */
+            checkBarrageStatus (arr) {
+                for (let i = 0; i < arr.length; i++) {
+                    if (arr[i].x > -arr[i].width) return false
+                }
+                return true
             },
             /**
              * 处理字符
@@ -228,6 +300,24 @@
                     ctx.clip()
                     ctx.drawImage(img, x, y, d, d)
                     ctx.restore()
+                    ctx.closePath()
+                } catch (e) {
+                    console.log(e)
+                }
+            },
+            /** 
+             * 绘制原始图片
+             * @param ctx
+             * @param img
+             * @param x
+             * @param y
+             * @param width
+             * @param height
+            */
+            originImg (ctx, img, x, y, width, height) {
+                try {
+                    ctx.beginPath()
+                    ctx.drawImage(img, x, y, width, height)
                     ctx.closePath()
                 } catch (e) {
                     console.log(e)
@@ -291,7 +381,7 @@
 
 <style lang="less" scoped>
     .barrage-container {
-        pointer-events: none;
+        // pointer-events: none;
     }
 
     .container {
