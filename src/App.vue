@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-01-16 23:36:57
- * @LastEditTime: 2020-03-19 15:16:19
+ * @LastEditTime: 2020-09-02 21:53:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /vue-barrage/src/App.vue
@@ -24,7 +24,6 @@
 
 <script>
     import Barrage from './views/src/index'
-    //    import Barrage from 'vue-barrage'
     export default {
         name: 'app',
         components: {
@@ -62,12 +61,11 @@
                 }
                 , {
                     id: 3,
-//                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
+                    icon: 'https://imgservices-1252317822.image.myqcloud.com/image/20200317/fx4jitwuvb.png',
                     content: '3测试数据测试数据数据测试数据',
                     color: 'red'
                 }, {
                     id: 4,
-//                    icon: 'https://user-gold-cdn.xitu.io/2019/3/3/169412b9920a8e31?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1',
                     content: '4试数据测测试数据测试数据测测试数据试据',
                     color: 'blue'
                 }, {
