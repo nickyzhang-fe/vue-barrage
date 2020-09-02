@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-03-18 13:26:53
- * @LastEditTime: 2020-09-02 21:56:16
+ * @LastEditTime: 2020-09-02 22:00:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /vue-barrage/src/views/src/barrage_new.vue
@@ -174,7 +174,7 @@ export default {
                 this.circleImg(this.ctx, barrage.icon, barrage.x - 10, i * (this.barrageHeight + 20) + 26, 24)
               }
               if (barrage.tagImage) {
-                this.originImg(this.ctx, barrage.tagImage, barrage.x - this.barrageHeight - 20, i * (this.barrageHeight + 20) + 20, this.barrageHeight, this.barrageHeight)
+                this.originImg(this.ctx, barrage.tagImage, barrage.x - this.barrageHeight - 10, i * (this.barrageHeight + 20) + 20, this.barrageHeight, this.barrageHeight)
               }
             }
             if (barrage.x < -(barrage.width + this.barrageHeight)) { // 弹幕删除
